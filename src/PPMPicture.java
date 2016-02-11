@@ -2,6 +2,7 @@ import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -24,8 +25,19 @@ public class PPMPicture extends Picture{
         if(file != null){
             Scanner fileScan = new Scanner(file);
             fileScan.nextLine();
-            int width = fileScan.nextInt();
-            int height = fileScan.nextInt();
+            boolean hasComments = true;
+            String line = "";
+            while(fileScan.hasNextLine() && hasComments){
+                line = fileScan.nextLine();
+                if(line.startsWith("#")){
+                    continue;
+                }else{
+                    hasComments = false;
+                }
+            }
+            Scanner lineScanner = new Scanner(line);
+            int width = lineScanner.nextInt();
+            int height = lineScanner.nextInt();
             fileScan.nextInt();
             ArrayList<Pixel> pixelList = new ArrayList<>();
             while(fileScan.hasNextInt()){
@@ -41,11 +53,29 @@ public class PPMPicture extends Picture{
     }
 
     public void store(File file) throws IOException{
-
+        FileWriter writer = new FileWriter(file);
+        String rgb = "";
+        ArrayList<Pixel> pixels = getPixels();
+        for(Pixel pixel : pixels){
+            rgb += pixelToString(pixel) + " ";
+        }
+        writer.write("P3\n" +
+                getWidth() + " " + getHeight() + "\n" +
+                "255\n" +
+                rgb);
     }
 
     private static String pixelToString(Pixel pixel){
         return "" + pixel.getRed() + " " + pixel.getGreen() +
                 " " + pixel.getBlue();
+    }
+
+    private ArrayList<Pixel> getPixels(){
+        int[] rgbArray = buffer.getRGB(0,0,getWidth(),getHeight(),null,0,getWidth());
+        ArrayList<Pixel> pixelList = new ArrayList<>();
+        for(int rgb : rgbArray){
+            pixelList.add(new Pixel(rgb));
+        }
+        return pixelList;
     }
 }
