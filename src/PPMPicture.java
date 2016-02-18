@@ -1,4 +1,5 @@
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -52,15 +53,18 @@ public class PPMPicture extends Picture{
 
     public void store(File file) throws IOException{
         FileWriter writer = new FileWriter(file);
-        String rgb = "";
-        ArrayList<Pixel> pixels = getPixels();
-        for(Pixel pixel : pixels){
-            rgb += pixelToString(pixel) + " ";
-        }
+
         writer.write("P3\n" +
                 getWidth() + " " + getHeight() + "\n" +
-                "255\n" +
-                rgb);
+                "255\n");
+        ArrayList<Pixel> pixels = getPixels();
+        for(Pixel pixel : pixels){
+            writer.write(pixelToString(pixel) + "    ");
+
+        }
+        writer.flush();
+        writer.close();
+
     }
 
     private static String pixelToString(Pixel pixel){
@@ -69,7 +73,8 @@ public class PPMPicture extends Picture{
     }
 
     private ArrayList<Pixel> getPixels(){
-        int[] rgbArray = buffer.getRGB(0,0,getWidth(),getHeight(),null,0,getWidth());
+        int[] rgbArray = new int[getWidth() * getHeight()];
+        buffer.getRGB(0,0,getWidth(),getHeight(),rgbArray,0,getWidth());
         ArrayList<Pixel> pixelList = new ArrayList<>();
         for(int rgb : rgbArray){
             pixelList.add(new Pixel(rgb));

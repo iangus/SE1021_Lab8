@@ -134,7 +134,8 @@ public class ImageViewer extends JFrame {
                 picture = new PPMPicture();
                 break;
             default:
-                System.out.println("Something didn't work");
+                picture = new EmptyPicture();
+                JOptionPane.showMessageDialog(null, "File type " + extension + " is not supported", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
