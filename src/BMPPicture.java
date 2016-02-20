@@ -1,7 +1,7 @@
 /**
  * SE1021 - 032
  * Winter 2016
- * Lab
+ * Lab 8
  * Name: Ian Guswiler
  * Created: 2/18/2016
  */
@@ -20,8 +20,8 @@ import java.util.ArrayList;
  * bitmap (.bmp) format.
  * <p></p>
  * This class is limited to
- * @author schilling, taylor, and FIX
- * @version FIX
+ * @author schilling, taylor, and Ian Guswiler
+ * @version 2/19/2016
  */
 public class BMPPicture extends Picture {
 
@@ -38,12 +38,24 @@ public class BMPPicture extends Picture {
      */
     public static final int DIB_HEADER_LENGTH = 40;
 
+    /**
+     * Constructs a bmp picture object with no data
+     */
     public BMPPicture(){}
 
+    /**
+     * Constructs a bmp picture using an existing BufferedImage
+     * @param buffer BufferedImage data to construct the bmp picture out of
+     */
     public BMPPicture(BufferedImage buffer){
         super(buffer);
     }
 
+    /**
+     * Reads a bmp file to load into the program
+     * @param file bmp file that is to be loaded in
+     * @throws IOException
+     */
     @Override
     public void load(File file) throws IOException {
         // Open a File Input stream with try/using statement.
@@ -179,6 +191,11 @@ public class BMPPicture extends Picture {
         }
     }
 
+    /**
+     * Saves the currently loaded image as a bmp file
+     * @param file bmp file that the image is to be saved as
+     * @throws IOException
+     */
     @Override
     public void store(File file) throws IOException {
         // Open a File Output stream.
@@ -294,6 +311,10 @@ public class BMPPicture extends Picture {
         }
     }
 
+    /**
+     * creates an array list of pixels from the buffered image
+     * @return pixel array list
+     */
     private ArrayList<Pixel> getPixels(){
         int[] rgbArray = new int[getWidth() * getHeight()];
         buffer.getRGB(0,0,getWidth(),getHeight(),rgbArray,0,getWidth());
