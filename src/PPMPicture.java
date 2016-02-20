@@ -22,6 +22,7 @@ public class PPMPicture extends Picture{
 
     public void load(File file) throws IOException{
         if(file != null){
+            lastFile = file;
             Scanner fileScan = new Scanner(file);
             fileScan.nextLine();
             boolean hasComments = true;

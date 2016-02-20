@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 
 /**
  * Represents images that are to be stored in the
@@ -37,10 +38,17 @@ public class BMPPicture extends Picture {
      */
     public static final int DIB_HEADER_LENGTH = 40;
 
+    public BMPPicture(){}
+
+    public BMPPicture(BufferedImage buffer){
+        super(buffer);
+    }
+
     @Override
     public void load(File file) throws IOException {
         // Open a File Input stream with try/using statement.
         try(FileInputStream fin = new FileInputStream(file)) {
+            lastFile = file;
             // Allocate a ByteBuffer to read the header into.
             ByteBuffer bBuffer = ByteBuffer.allocate(HEADER_LENGTH);
 
@@ -155,7 +163,16 @@ public class BMPPicture extends Picture {
 
 
             // c) Skip over any padding at the end of the line
-
+            for(int y = 0; y < height; y++){
+                byte[] line = new byte[lineLength];
+                bBuffer.get(line,0, lineLength);
+                for(int x = 0; x < width; x++){
+                    byte[] bgrBytes;
+                    bgrBytes = java.util.Arrays.copyOfRange(line, x * 3, (x * 3) + 3);
+                    Pixel pixel = new Pixel(bgrBytes[2],bgrBytes[1],bgrBytes[0]);
+                    buffer.setRGB(x,(height - 1) - y,pixel.getSRGB());
+                }
+            }
 
 
 
@@ -255,13 +272,35 @@ public class BMPPicture extends Picture {
             // c) Add padding so that the number of bytes for each row is
             //    evenly divisible by 4.  Add additional bytes with the value
             //    of 0 for the padding bytes.
-
+            ArrayList<Pixel> pixels = getPixels();
+            for(int y = getHeight() - 1; y >= 0; y--){
+                byte[] line = new byte[lineLength];
+                for(int x = 0; x < getWidth(); x++){
+                    byte red = (byte) pixels.get(x + (y * getWidth())).getRed();
+                    byte green = (byte) pixels.get(x + (y * getWidth())).getGreen();
+                    byte blue = (byte) pixels.get(x + (y * getWidth())).getBlue();
+                    line[x * 3] = blue;
+                    line[(x * 3) + 1] = green;
+                    line[(x * 3) + 2] = red;
+                }
+                bBuffer.put(line);
+            }
 
 
 
 
             // 21) Write the pixel data out to the file.
-
+            fout.write(bBuffer.array());
         }
+    }
+
+    private ArrayList<Pixel> getPixels(){
+        int[] rgbArray = new int[getWidth() * getHeight()];
+        buffer.getRGB(0,0,getWidth(),getHeight(),rgbArray,0,getWidth());
+        ArrayList<Pixel> pixelList = new ArrayList<>();
+        for(int rgb : rgbArray){
+            pixelList.add(new Pixel(rgb));
+        }
+        return pixelList;
     }
 }
